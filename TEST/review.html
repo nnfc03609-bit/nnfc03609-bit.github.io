@@ -15,6 +15,7 @@
     --ink:#101C24;
     --paper:#FAF7F1;
     --brass:#C29B4C;
+    --oxblood:#8C2F2A;
   }
   *{box-sizing:border-box}
   body{
@@ -26,9 +27,9 @@
   }
 
   .container{
+    width:100%; max-width:380px;
     text-align:center;
     color:var(--paper);
-    max-width:320px;
   }
 
   .checkmark{
@@ -55,10 +56,63 @@
     line-height:1.5;
   }
 
+  #status{
+    min-height:20px;
+    margin:16px 0;
+    font-size:13px;
+    color:rgba(194,155,76,.9);
+  }
+
+  .text-box{
+    background:rgba(0,0,0,.2);
+    border:1px solid rgba(194,155,76,.3);
+    border-radius:3px;
+    padding:14px;
+    margin:20px 0;
+    color:rgba(250,247,241,.9);
+    font-size:14px;
+    line-height:1.6;
+    text-align:left;
+  }
+
+  .actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:18px;
+  }
+
+  button, a.btn{
+    padding:12px 14px;
+    border-radius:3px;
+    border:none;
+    font-family:inherit;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    transition:transform .12s ease, opacity .2s ease;
+    text-decoration:none;
+  }
+
+  button{
+    background:rgba(194,155,76,.3);
+    color:var(--brass);
+  }
+  button:hover{opacity:.8}
+  button:active{transform:scale(.95)}
+
+  a.btn{
+    background:var(--oxblood);
+    color:var(--paper);
+    grid-column:1/-1;
+  }
+  a.btn:hover{opacity:.9; transform:translateY(-1px)}
+  a.btn:active{transform:scale(.98)}
+
   .action{
-    margin-top:24px;
-    font-size:13.5px;
-    color:rgba(250,247,241,.7);
+    margin-top:20px;
+    font-size:13px;
+    color:rgba(250,247,241,.6);
   }
 
   @keyframes pop{from{opacity:0; transform:scale(.7)} to{opacity:1; transform:none}}
@@ -68,25 +122,48 @@
 <body>
 <div class="container">
   <div class="checkmark">✓</div>
-  <h1>Testo copiato!</h1>
-  <p>Il testo della recensione è negli appunti.</p>
-  <p>Si apre il modulo di Google — incolla e invia con le tue stelle.</p>
+  <h1 id="title">Testo copiato!</h1>
+  <p id="desc">Procedi a Google per incollare e inviare.</p>
+  <div id="status"></div>
+
+  <div id="reviewBox" class="text-box" style="display:none">
+    <strong>Testo da copiare:</strong><br><br>
+    <span id="reviewTextDisplay">Perfetto per il taglio e la barba. Alessandro sa il fatto suo e mi ha ascoltato. Tempi di attesa ragionevoli e ambiente accogliente. Tornerò.</span>
+  </div>
+
+  <div class="actions" id="actions" style="display:none">
+    <button onclick="copyManual()">Copia testo</button>
+    <a class="btn" href="https://search.google.com/local/writereview?placeid=ChIJNxE3HIrdOxMR6-SMs_lDljQ" target="_blank" rel="noopener">Apri Google</a>
+  </div>
+
   <div class="action">Se non si apre, <a href="https://search.google.com/local/writereview?placeid=ChIJNxE3HIrdOxMR6-SMs_lDljQ" style="color:var(--brass); text-decoration:none">clicca qui</a>.</div>
 </div>
 
 <script>
 const reviewText = "Perfetto per il taglio e la barba. Alessandro sa il fatto suo e mi ha ascoltato. Tempi di attesa ragionevoli e ambiente accogliente. Tornerò.";
 
+// Tenta la copia automatica
 navigator.clipboard.writeText(reviewText).then(() => {
+  // Copia riuscita
   setTimeout(() => {
     window.location.href = "https://search.google.com/local/writereview?placeid=ChIJNxE3HIrdOxMR6-SMs_lDljQ";
-  }, 1400);
+  }, 1500);
 }).catch(() => {
-  // Se copia fallisce, apri comunque Google
-  setTimeout(() => {
-    window.location.href = "https://search.google.com/local/writereview?placeid=ChIJNxE3HIrdOxMR6-SMs_lDljQ";
-  }, 2000);
+  // Copia fallita, mostra fallback
+  document.getElementById('title').textContent = 'Copia il testo manualmente';
+  document.getElementById('desc').textContent = 'Il testo è qui sotto — copia manualmente o usa il pulsante.';
+  document.getElementById('reviewBox').style.display = 'block';
+  document.getElementById('actions').style.display = 'grid';
 });
+
+function copyManual() {
+  const text = document.getElementById('reviewTextDisplay').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    document.getElementById('status').textContent = '✓ Copiato! Ora clicca "Apri Google"';
+  }).catch(() => {
+    document.getElementById('status').textContent = 'Seleziona il testo e usa Copia';
+  });
+}
 </script>
 </body>
 </html>
